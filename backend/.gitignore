@@ -1,0 +1,38 @@
+# Dart
+.dart_tool/
+.packages
+.pub/
+build/
+*.dart.js
+*.dart.js.map
+*.info.json
+*.js
+*.js.map
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Service Account
+service_account.json
+*.json
+!pubspec.json
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Compiled
+donation_backend
+donation_backend.exe
