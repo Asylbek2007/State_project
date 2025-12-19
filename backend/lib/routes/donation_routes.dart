@@ -104,7 +104,7 @@ class DonationRoutes {
       // Skip header row
       final donations = data.skip(1).map((row) {
         return {
-          'fullName': row.length > 0 ? row[0].toString() : '',
+          'fullName': row.isNotEmpty ? row[0].toString() : '',
           'studyGroup': row.length > 1 ? row[1].toString() : '',
           'amount': row.length > 2 ? (double.tryParse(row[2].toString()) ?? 0.0) : 0.0,
           'date': row.length > 3 ? row[3].toString() : '',

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../services/jwt_service.dart';
 
@@ -7,11 +8,13 @@ Middleware authMiddleware(JwtService jwtService) {
     return (Request request) async {
       // Skip auth for public routes
       final path = request.url.path;
-      if (path.startsWith('auth/register') ||
-          path.startsWith('auth/login') ||
-          path.startsWith('health') ||
-          (path.startsWith('goals') && request.method == 'GET') ||
-          (path.startsWith('donations') && request.method == 'GET')) {
+      if (path.startsWith('api/auth/register') ||
+          path.startsWith('api/auth/login') ||
+          path.startsWith('api/auth/verify') ||
+          path.startsWith('api/auth/admin/login') ||
+          path == 'health' ||
+          (path.startsWith('api/goals') && request.method == 'GET') ||
+          (path.startsWith('api/donations') && request.method == 'GET')) {
         return innerHandler(request);
       }
 
@@ -19,7 +22,7 @@ Middleware authMiddleware(JwtService jwtService) {
       final authHeader = request.headers['authorization'];
       if (authHeader == null || !authHeader.startsWith('Bearer ')) {
         return Response.unauthorized(
-          {'error': 'Missing or invalid authorization header'},
+          jsonEncode({'error': 'Missing or invalid authorization header'}),
           headers: {'Content-Type': 'application/json'},
         );
       }
@@ -29,23 +32,23 @@ Middleware authMiddleware(JwtService jwtService) {
 
       if (payload == null) {
         return Response.unauthorized(
-          {'error': 'Invalid or expired token'},
+          jsonEncode({'error': 'Invalid or expired token'}),
           headers: {'Content-Type': 'application/json'},
         );
       }
 
       if (jwtService.isTokenExpired(payload)) {
         return Response.unauthorized(
-          {'error': 'Token expired'},
+          jsonEncode({'error': 'Token expired'}),
           headers: {'Content-Type': 'application/json'},
         );
       }
 
       // Check admin routes
-      if (path.startsWith('admin/')) {
+      if (path.startsWith('api/admin/')) {
         if (!jwtService.isAdminToken(payload)) {
           return Response.forbidden(
-            {'error': 'Admin access required'},
+            jsonEncode({'error': 'Admin access required'}),
             headers: {'Content-Type': 'application/json'},
           );
         }

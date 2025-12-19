@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -51,36 +52,51 @@ void main(List<String> args) async {
   final router = Router();
 
   // Auth routes (public)
-  router.mount('/api/auth', AuthRoutes(jwtService, sheetsService).router);
+  final authRoutes = AuthRoutes(jwtService, sheetsService);
+  final authRouter = authRoutes.router;
+  // ignore: implicit_call_tearoffs
+  router.mount('/api/auth', authRouter);
 
   // User routes (protected)
+  final userRoutes = UserRoutes(jwtService, sheetsService);
+  final userRouter = userRoutes.router;
   router.mount(
     '/api/user',
-    UserRoutes(jwtService, sheetsService).router,
+    // ignore: implicit_call_tearoffs
+    userRouter,
   );
 
   // Donation routes (protected)
+  final donationRoutes = DonationRoutes(jwtService, sheetsService);
+  final donationRouter = donationRoutes.router;
   router.mount(
     '/api/donations',
-    DonationRoutes(jwtService, sheetsService).router,
+    // ignore: implicit_call_tearoffs
+    donationRouter,
   );
 
   // Goals routes (public read, protected write)
+  final goalsRoutes = GoalsRoutes(jwtService, sheetsService);
+  final goalsRouter = goalsRoutes.router;
   router.mount(
     '/api/goals',
-    GoalsRoutes(jwtService, sheetsService).router,
+    // ignore: implicit_call_tearoffs
+    goalsRouter,
   );
 
   // Admin routes (admin only)
+  final adminRoutes = AdminRoutes(jwtService, sheetsService);
+  final adminRouter = adminRoutes.router;
   router.mount(
     '/api/admin',
-    AdminRoutes(jwtService, sheetsService).router,
+    // ignore: implicit_call_tearoffs
+    adminRouter,
   );
 
   // Health check
   router.get('/health', (Request request) {
     return Response.ok(
-      {'status': 'ok', 'timestamp': DateTime.now().toIso8601String()},
+      jsonEncode({'status': 'ok', 'timestamp': DateTime.now().toIso8601String()}),
       headers: const {'Content-Type': 'application/json'},
     );
   });
@@ -91,7 +107,7 @@ void main(List<String> args) async {
       .addMiddleware(corsHeaders())
       .addMiddleware(errorHandler())
       .addMiddleware(authMiddleware(jwtService))
-      .addHandler(router);
+      .addHandler(router.call);
 
   // Start server
   final port = int.parse(Platform.environment['PORT'] ?? '8080');

@@ -22,6 +22,9 @@ dependencies:
   # HTTP & JSON
   http: ^1.1.0
   
+  # Password hashing
+  crypto: ^3.0.3
+  
   # Logging
   logging: ^1.2.0
 

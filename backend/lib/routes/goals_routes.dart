@@ -39,7 +39,7 @@ class GoalsRoutes {
       // Skip header row
       final goals = data.skip(1).map((row) {
         return {
-          'name': row.length > 0 ? row[0].toString() : '',
+          'name': row.isNotEmpty ? row[0].toString() : '',
           'targetAmount': row.length > 1 ? (double.tryParse(row[1].toString()) ?? 0.0) : 0.0,
           'currentAmount': row.length > 2 ? (double.tryParse(row[2].toString()) ?? 0.0) : 0.0,
           'deadline': row.length > 3 ? row[3].toString() : '',
