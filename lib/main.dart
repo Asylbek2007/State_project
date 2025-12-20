@@ -22,7 +22,7 @@ void main() async {
 
   try {
     // Load credentials from separate file (not tracked by git)
-    final serviceAccountCredentials = credentials.serviceAccountCredentials;
+    const serviceAccountCredentials = credentials.serviceAccountCredentials;
     await googleSheetsService.initialize(serviceAccountCredentials);
     print('✓ Google Sheets API initialized successfully');
   } catch (e) {
