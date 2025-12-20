@@ -9,6 +9,8 @@ class DonationModel extends Donation {
     required super.date,
     required super.message,
     super.goalName,
+    super.transactionId,
+    super.paymentStatus,
   });
 
   /// Create DonationModel from domain entity.
@@ -20,14 +22,16 @@ class DonationModel extends Donation {
       date: donation.date,
       message: donation.message,
       goalName: donation.goalName,
+      transactionId: donation.transactionId,
+      paymentStatus: donation.paymentStatus,
     );
   }
 
   /// Create DonationModel from Google Sheets row.
   ///
   /// Expected row format:
-  /// [Full Name, Study Group, Amount, Date, Message, Goal Name]
-  /// Goal Name is optional (for backward compatibility)
+  /// [Full Name, Study Group, Amount, Date, Message, Goal Name, Transaction ID, Payment Status]
+  /// Goal Name, Transaction ID, Payment Status are optional (for backward compatibility)
   factory DonationModel.fromSheetRow(List<dynamic> row) {
     return DonationModel(
       fullName: row.isNotEmpty ? row[0].toString() : '',
@@ -38,7 +42,30 @@ class DonationModel extends Donation {
       goalName: row.length > 5 && row[5] != null && row[5].toString().isNotEmpty
           ? row[5].toString()
           : null,
+      transactionId: row.length > 6 && row[6] != null && row[6].toString().isNotEmpty
+          ? row[6].toString()
+          : null,
+      paymentStatus: row.length > 7 && row[7] != null && row[7].toString().isNotEmpty
+          ? _parsePaymentStatus(row[7].toString())
+          : null,
     );
+  }
+  
+  /// Parse payment status from string.
+  static PaymentStatus? _parsePaymentStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+      case 'ожидает подтверждения':
+        return PaymentStatus.pending;
+      case 'confirmed':
+      case 'подтверждено':
+        return PaymentStatus.confirmed;
+      case 'rejected':
+      case 'отклонено':
+        return PaymentStatus.rejected;
+      default:
+        return null;
+    }
   }
 
   /// Convert to Google Sheets row.
@@ -50,6 +77,8 @@ class DonationModel extends Donation {
       date.toIso8601String(),
       message,
       goalName ?? '', // Goal Name (6th column)
+      transactionId ?? '', // Transaction ID (7th column)
+      paymentStatus?.name ?? '', // Payment Status (8th column)
     ];
   }
 
@@ -70,6 +99,8 @@ class DonationModel extends Donation {
       'date': date.toIso8601String(),
       'message': message,
       'goalName': goalName,
+      'transactionId': transactionId,
+      'paymentStatus': paymentStatus?.name,
     };
   }
 
@@ -82,6 +113,10 @@ class DonationModel extends Donation {
       date: DateTime.parse(map['date'] as String),
       message: map['message'] as String? ?? '',
       goalName: map['goalName'] as String?,
+      transactionId: map['transactionId'] as String?,
+      paymentStatus: map['paymentStatus'] != null
+          ? _parsePaymentStatus(map['paymentStatus'] as String)
+          : null,
     );
   }
 }
