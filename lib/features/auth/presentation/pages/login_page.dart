@@ -41,12 +41,10 @@ class LoginPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 // Title
-                const Text(
+                Text(
                   'Вход',
-                  style: TextStyle(
-                    fontSize: 28,
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -87,10 +85,10 @@ class LoginPage extends ConsumerWidget {
                 // Login Form
                 LoginForm(
                   isLoading: state.isLoading,
-                  onSubmit: (fullName, surname, studyGroup) {
+                  onSubmit: (email, password) {
                     ref
                         .read(authProvider.notifier)
-                        .loginUser(fullName, surname, studyGroup);
+                        .loginUser(email, password);
                   },
                 ),
                 const SizedBox(height: 24),
@@ -117,7 +115,7 @@ class LoginPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 // Info text
                 const Text(
-                  'Введите те же данные, которые вы использовали при регистрации.',
+                  'Введите email и пароль, которые вы использовали при регистрации.',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.textSecondary,
