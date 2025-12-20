@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/skeleton_card.dart';
 import '../../../../core/widgets/skeleton_list.dart';
+import '../../../../core/widgets/hover_card.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../donation/domain/entities/donation.dart';
 
@@ -190,58 +191,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage> {
   }
 
   Widget _buildHeroSection(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(AppTheme.spacing16),
-      padding: const EdgeInsets.all(AppTheme.spacing24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppTheme.primarySkyBlue,
-            AppTheme.accentBlue,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primarySkyBlue.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.people,
-            size: 48,
-            color: Colors.white,
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-          const Text(
-            'Вместе мы сила!',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppTheme.spacing8),
-          Text(
-            'Благодарим каждого, кто помогает развитию нашего колледжа',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
+    return const _HeroSectionWithHover();
   }
 
   Widget _buildStatsSection(BuildContext context, JournalState state) {
@@ -281,6 +231,10 @@ class _CommunityPageState extends ConsumerState<CommunityPage> {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title, String subtitle) {
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.titleLarge?.color ?? theme.colorScheme.onSurface;
+    final subtitleColor = theme.textTheme.bodySmall?.color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7);
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppTheme.spacing16,
@@ -293,18 +247,18 @@ class _CommunityPageState extends ConsumerState<CommunityPage> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: textColor,
             ),
           ),
           const SizedBox(height: AppTheme.spacing4),
           Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppTheme.textSecondary,
+              color: subtitleColor,
             ),
           ),
         ],
@@ -426,19 +380,11 @@ class _CommunityStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final theme = Theme.of(context);
+    final subtitleColor = theme.textTheme.bodySmall?.color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7);
+    
+    return HoverCard(
       padding: const EdgeInsets.all(AppTheme.spacing16),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Column(
         children: [
           Icon(icon, color: color, size: 28),
@@ -454,9 +400,9 @@ class _CommunityStatCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacing4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppTheme.textSecondary,
+              color: subtitleColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -479,7 +425,9 @@ class _TopDonorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final currencyFormat = NumberFormat.currency(symbol: '₸', decimalDigits: 0);
+    final textColor = theme.textTheme.titleMedium?.color ?? theme.colorScheme.onSurface;
     
     final medal = rank == 1
         ? '🥇'
@@ -493,25 +441,19 @@ class _TopDonorCard extends StatelessWidget {
             ? const Color(0xFFC0C0C0) // Silver
             : const Color(0xFFCD7F32); // Bronze
 
-    return Container(
+    return HoverCard(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
       padding: const EdgeInsets.all(AppTheme.spacing16),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: color.withValues(alpha: 0.3),
+            width: 2,
           ),
-        ],
-      ),
-      child: Row(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        ),
+        child: Row(
         children: [
           Container(
             width: 50,
@@ -534,9 +476,10 @@ class _TopDonorCard extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: textColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -572,6 +515,7 @@ class _TopDonorCard extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -592,26 +536,19 @@ class _ImpactStoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final currencyFormat = NumberFormat.currency(symbol: '₸', decimalDigits: 0);
     final dateFormat = DateFormat('dd MMM yyyy');
+    final textColor = theme.textTheme.titleMedium?.color ?? theme.colorScheme.onSurface;
+    final subtitleColor = theme.textTheme.bodySmall?.color ?? theme.colorScheme.onSurface.withValues(alpha: 0.7);
+    final bodyColor = theme.textTheme.bodyMedium?.color ?? theme.colorScheme.onSurface;
 
-    return Container(
+    return HoverCard(
       margin: const EdgeInsets.symmetric(
         horizontal: AppTheme.spacing16,
         vertical: AppTheme.spacing8,
       ),
       padding: const EdgeInsets.all(AppTheme.spacing16),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -637,18 +574,19 @@ class _ImpactStoryCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
+                        color: textColor,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       dateFormat.format(date),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textSecondary,
+                        color: subtitleColor,
                       ),
                     ),
                   ],
@@ -693,9 +631,9 @@ class _ImpactStoryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     message,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textPrimary,
+                      color: bodyColor,
                       fontStyle: FontStyle.italic,
                       height: 1.5,
                     ),
@@ -705,6 +643,144 @@ class _ImpactStoryCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Hero section with visible hover effect.
+class _HeroSectionWithHover extends StatefulWidget {
+  const _HeroSectionWithHover();
+
+  @override
+  State<_HeroSectionWithHover> createState() => _HeroSectionWithHoverState();
+}
+
+class _HeroSectionWithHoverState extends State<_HeroSectionWithHover>
+    with SingleTickerProviderStateMixin {
+  bool _isHovered = false;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _shadowAnimation;
+  late Animation<double> _gradientAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    
+    _shadowAnimation = Tween<double>(begin: 15.0, end: 25.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    
+    _gradientAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleHover(bool isHovered) {
+    setState(() {
+      _isHovered = isHovered;
+    });
+    if (isHovered) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => _handleHover(true),
+      onExit: (_) => _handleHover(false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              margin: const EdgeInsets.all(AppTheme.spacing16),
+              padding: const EdgeInsets.all(AppTheme.spacing24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.lerp(
+                      AppTheme.primarySkyBlue,
+                      AppTheme.primarySkyBlue.withValues(alpha: 0.9),
+                      _gradientAnimation.value,
+                    )!,
+                    Color.lerp(
+                      AppTheme.accentBlue,
+                      AppTheme.accentBlue.withValues(alpha: 0.9),
+                      _gradientAnimation.value,
+                    )!,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primarySkyBlue.withValues(
+                      alpha: 0.3 + (_shadowAnimation.value - 15.0) / 50.0,
+                    ),
+                    blurRadius: _shadowAnimation.value,
+                    spreadRadius: _isHovered ? 2.0 : 0.0,
+                    offset: Offset(0, 8 + (_shadowAnimation.value - 15.0) / 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Transform.scale(
+                    scale: 1.0 + (_gradientAnimation.value * 0.1),
+                    child: const Icon(
+                      Icons.people,
+                      size: 48,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+                  const Text(
+                    'Вместе мы сила!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppTheme.spacing8),
+                  Text(
+                    'Благодарим каждого, кто помогает развитию нашего колледжа',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
