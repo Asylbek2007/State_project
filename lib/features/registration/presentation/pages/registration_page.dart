@@ -42,21 +42,19 @@ class RegistrationPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 // Title
-                const Text(
+                Text(
                   'Добро пожаловать!',
-                  style: TextStyle(
-                    fontSize: 28,
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 // Subtitle
-                const Text(
+                Text(
                   'Зарегистрируйтесь, чтобы начать помогать',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -87,10 +85,10 @@ class RegistrationPage extends ConsumerWidget {
                 // Registration Form
                 RegistrationForm(
                   isLoading: state.isLoading,
-                  onSubmit: (fullName, surname, studyGroup) {
+                  onSubmit: (email, password, fullName, surname, studyGroup) {
                     ref
                         .read(registrationProvider.notifier)
-                        .registerUser(fullName, surname, studyGroup);
+                        .registerUser(email, password, fullName, surname, studyGroup);
                   },
                 ),
                 const SizedBox(height: 24),
@@ -136,8 +134,8 @@ class RegistrationPage extends ConsumerWidget {
     // Generate and save token
     final tokenService = TokenStorageService();
     
-    // Generate user ID (using timestamp + name hash for uniqueness)
-    final userId = '${user.registrationDate.millisecondsSinceEpoch}_${user.fullName.hashCode}';
+    // Generate user ID (using email hash for uniqueness)
+    final userId = '${user.email.hashCode}_${user.registrationDate.millisecondsSinceEpoch}';
     
     // Generate token
     final token = tokenService.generateToken(
