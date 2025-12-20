@@ -16,13 +16,18 @@ class JournalRepositoryImpl implements JournalRepository {
   ]) : cacheService = cacheService ?? CacheService();
 
   @override
-  Future<List<Donation>> getDonations() async {
+  Future<List<Donation>> getDonations({bool forceRefresh = false}) async {
     const cacheKey = 'donations_list';
     
-    // Try to get from cache first
-    final cachedDonations = cacheService.get<List<Donation>>(cacheKey);
-    if (cachedDonations != null) {
-      return cachedDonations;
+    // If force refresh, clear cache first
+    if (forceRefresh) {
+      cacheService.remove(cacheKey);
+    } else {
+      // Try to get from cache first
+      final cachedDonations = cacheService.get<List<Donation>>(cacheKey);
+      if (cachedDonations != null) {
+        return cachedDonations;
+      }
     }
 
     try {
@@ -30,6 +35,7 @@ class JournalRepositoryImpl implements JournalRepository {
       final data = await sheetsService.readSheet('Donations');
 
       if (data.isEmpty) {
+        cacheService.remove(cacheKey);
         return [];
       }
 
