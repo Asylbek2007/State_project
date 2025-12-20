@@ -14,11 +14,29 @@ class RegisterUserUseCase {
   ///
   /// Throws [ValidationFailure] if inputs are invalid.
   /// Throws [SheetsFailure] if Google Sheets operation fails.
-  Future<User> call(String fullName, String surname, String studyGroup) async {
+  Future<User> call(String email, String password, String fullName, String surname, String studyGroup) async {
     // Validate inputs
+    final trimmedEmail = email.trim().toLowerCase();
     final trimmedName = fullName.trim();
     final trimmedSurname = surname.trim();
     final trimmedGroup = studyGroup.trim();
+
+    if (trimmedEmail.isEmpty) {
+      throw const ValidationFailure('Email не может быть пустым');
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(trimmedEmail)) {
+      throw const ValidationFailure('Введите корректный email адрес');
+    }
+
+    if (password.isEmpty) {
+      throw const ValidationFailure('Пароль не может быть пустым');
+    }
+
+    if (password.length < 6) {
+      throw const ValidationFailure('Пароль должен содержать минимум 6 символов');
+    }
 
     if (trimmedName.isEmpty) {
       throw const ValidationFailure('Имя не может быть пустым');
@@ -41,7 +59,7 @@ class RegisterUserUseCase {
     }
 
     // Delegate to repository
-    return await repository.registerUser(trimmedName, trimmedSurname, trimmedGroup);
+    return await repository.registerUser(trimmedEmail, password, trimmedName, trimmedSurname, trimmedGroup);
   }
 }
 
