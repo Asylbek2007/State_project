@@ -9,11 +9,13 @@ import '../../../goals/presentation/providers/goals_provider.dart';
 class DonationPage extends ConsumerStatefulWidget {
   final String userName;
   final String userGroup;
+  final String? selectedGoalName;
 
   const DonationPage({
     super.key,
     required this.userName,
     required this.userGroup,
+    this.selectedGoalName,
   });
 
   @override
@@ -114,6 +116,7 @@ class _DonationPageState extends ConsumerState<DonationPage> {
                   userGroup: widget.userGroup,
                   goals: goalsState.goals,
                   isLoading: state.isLoading,
+                  preselectedGoalName: widget.selectedGoalName,
                   onSubmit: (amount, message, goalName) {
                     ref.read(donationProvider.notifier).makeDonation(
                           fullName: widget.userName,
