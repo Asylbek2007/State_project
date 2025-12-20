@@ -1,3 +1,13 @@
+/// Payment status enum.
+enum PaymentStatus {
+  pending('Ожидает подтверждения'),
+  confirmed('Подтверждено'),
+  rejected('Отклонено');
+
+  final String label;
+  const PaymentStatus(this.label);
+}
+
 /// Entity representing a donation.
 class Donation {
   final String fullName;
@@ -6,6 +16,8 @@ class Donation {
   final DateTime date;
   final String message;
   final String? goalName; // Название цели сбора (опционально)
+  final String? transactionId; // Номер транзакции (опционально)
+  final PaymentStatus? paymentStatus; // Статус оплаты (опционально)
 
   const Donation({
     required this.fullName,
@@ -14,6 +26,8 @@ class Donation {
     required this.date,
     required this.message,
     this.goalName,
+    this.transactionId,
+    this.paymentStatus,
   });
 
   @override
@@ -26,7 +40,9 @@ class Donation {
           amount == other.amount &&
           date == other.date &&
           message == other.message &&
-          goalName == other.goalName;
+          goalName == other.goalName &&
+          transactionId == other.transactionId &&
+          paymentStatus == other.paymentStatus;
 
   @override
   int get hashCode =>
@@ -35,7 +51,9 @@ class Donation {
       amount.hashCode ^
       date.hashCode ^
       message.hashCode ^
-      (goalName?.hashCode ?? 0);
+      (goalName?.hashCode ?? 0) ^
+      (transactionId?.hashCode ?? 0) ^
+      (paymentStatus?.hashCode ?? 0);
 
   @override
   String toString() =>
