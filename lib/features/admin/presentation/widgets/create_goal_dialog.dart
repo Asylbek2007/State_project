@@ -145,7 +145,16 @@ class _CreateGoalDialogState extends ConsumerState<CreateGoalDialog> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'Целевая сумма *',
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(
+                      '₸',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   suffixText: '₸',
                 ),
                 validator: (v) {
