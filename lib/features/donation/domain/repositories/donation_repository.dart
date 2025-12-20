@@ -11,5 +11,6 @@ abstract class DonationRepository {
     required double amount,
     required String message,
     String? goalName,
+    String? transactionId,
   });
 }
