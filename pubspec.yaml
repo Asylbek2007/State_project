@@ -1,30 +1,32 @@
 name: donation_app
 description: A Flutter donation application for students and teachers with Google Sheets integration.
-publish_to: 'none'
-version: 1.0.0+1
+publish_to: "none"
+version: 1.0.1+2
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # State Management
   flutter_riverpod: ^2.4.9
-  
+
   # Google Sheets API
   googleapis: ^11.4.0
   googleapis_auth: ^1.4.1
   http: ^1.1.0
-  
+
   # UI
   cupertino_icons: ^1.0.6
-  
+  carousel_slider: ^5.0.0
+
   # Utilities
   intl: ^0.18.1
   url_launcher: ^6.2.2
-  
+  qr_flutter: ^4.1.0
+
   # Security & Storage
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
@@ -37,4 +39,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
