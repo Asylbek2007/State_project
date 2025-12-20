@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/services/token_storage_service.dart';
 import '../../../../core/services/admin_service.dart';
+import '../../../../core/widgets/hover_card.dart';
 import '../../../splash/presentation/pages/splash_page.dart';
 import '../../../admin/presentation/pages/admin_login_page.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
@@ -27,11 +28,20 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final AdminService _adminService = AdminService();
   bool _isAdmin = false;
+  bool _journalLoaded = false;
+  bool _isHeaderHovered = false;
 
   @override
   void initState() {
     super.initState();
     _checkAdminStatus();
+    // Подтягиваем донаты для статистики пользователя
+    Future.microtask(() async {
+      if (!_journalLoaded) {
+        _journalLoaded = true;
+        await ref.read(journalProvider.notifier).loadDonations(forceRefresh: true);
+      }
+    });
   }
 
   Future<void> _checkAdminStatus() async {
@@ -83,93 +93,126 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildUserHeader(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacing16),
-      padding: const EdgeInsets.all(AppTheme.spacing24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primarySkyBlue,
-            AppTheme.primarySkyBlue.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primarySkyBlue.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Avatar
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 3,
-              ),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHeaderHovered = true),
+      onExit: (_) => setState(() => _isHeaderHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedScale(
+        scale: _isHeaderHovered ? 1.03 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacing16),
+          padding: const EdgeInsets.all(AppTheme.spacing24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.primarySkyBlue,
+                AppTheme.primarySkyBlue.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: const Icon(
-              Icons.person,
-              size: 40,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-
-          // Name
-          Text(
-            widget.userName,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppTheme.spacing8),
-
-          // Group Badge
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacing16,
-              vertical: AppTheme.spacing8,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.school,
-                  size: 16,
-                  color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primarySkyBlue.withValues(
+                  alpha: _isHeaderHovered ? 0.45 : 0.3,
                 ),
-                const SizedBox(width: AppTheme.spacing8),
-                Text(
-                  widget.userGroup,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                blurRadius: _isHeaderHovered ? 24 : 15,
+                offset: Offset(0, _isHeaderHovered ? 12 : 8),
+                spreadRadius: _isHeaderHovered ? 2 : 0,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Avatar
+              AnimatedScale(
+                scale: _isHeaderHovered ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    size: 40,
                     color: Colors.white,
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppTheme.spacing16),
+
+              // Name
+              Text(
+                widget.userName,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppTheme.spacing8),
+
+              // Group Badge
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacing16,
+                  vertical: AppTheme.spacing8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(
+                    alpha: _isHeaderHovered ? 0.3 : 0.2,
+                  ),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusCircular),
+                  boxShadow: _isHeaderHovered
+                      ? [
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.school,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: AppTheme.spacing8),
+                    Text(
+                      widget.userGroup,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -193,8 +236,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ),
           const SizedBox(width: AppTheme.spacing12),
-          const Expanded(
-            child: _StatCard(
+          // ignore: prefer_const_constructors
+          Expanded(
+            child: const _StatCard(
               icon: Icons.emoji_events,
               label: 'Достижения',
               value: '0',
@@ -267,7 +311,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             onTap: () => _openTelegramSupport(context),
           ),
           const Divider(height: 1, thickness: 1),
-          _ThemeToggleTile(),
+          const _ThemeToggleTile(),
           const Divider(height: 1, thickness: 1),
           _SettingsTile(
             icon: Icons.info_outline,
@@ -285,7 +329,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing16),
-      child: OutlinedButton(
+      child: HoverButton(
+        isOutlined: true,
         onPressed: () => _handleLogout(context),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppTheme.errorRed,
@@ -439,21 +484,8 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Container(
+    return HoverCard(
       padding: const EdgeInsets.all(AppTheme.spacing16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Column(
         children: [
           Container(
@@ -496,7 +528,7 @@ class _ThemeToggleTile extends ConsumerWidget {
     final themeModeState = ref.watch(themeModeProvider);
     final isDark = themeModeState.themeMode == ThemeMode.dark;
 
-    return ListTile(
+    return HoverListTile(
       leading: Icon(
         isDark ? Icons.dark_mode : Icons.light_mode,
         color: AppTheme.primarySkyBlue,
@@ -510,6 +542,10 @@ class _ThemeToggleTile extends ConsumerWidget {
         },
         activeColor: AppTheme.primarySkyBlue,
       ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacing16,
+        vertical: AppTheme.spacing8,
+      ),
     );
   }
 }
@@ -518,20 +554,18 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Widget? trailing;
   final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
     required this.title,
     this.subtitle,
-    this.trailing,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return HoverListTile(
       leading: Icon(
         icon,
         color: AppTheme.primarySkyBlue,
@@ -553,12 +587,11 @@ class _SettingsTile extends StatelessWidget {
               ),
             )
           : null,
-      trailing: trailing ??
-          Icon(
-            Icons.chevron_right,
-            color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
-          ),
-      onTap: trailing == null ? onTap : null,
+      trailing: Icon(
+        Icons.chevron_right,
+        color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
+      ),
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppTheme.spacing16,
         vertical: AppTheme.spacing8,
