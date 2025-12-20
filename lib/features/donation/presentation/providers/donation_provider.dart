@@ -43,6 +43,7 @@ class DonationNotifier extends StateNotifier<DonationState> {
     required double amount,
     required String message,
     String? goalName,
+    String? transactionId,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -53,6 +54,7 @@ class DonationNotifier extends StateNotifier<DonationState> {
         amount: amount,
         message: message,
         goalName: goalName,
+        transactionId: transactionId,
       );
       
       state = state.copyWith(isLoading: false, donation: donation);
