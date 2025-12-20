@@ -37,11 +37,11 @@ class RegistrationNotifier extends StateNotifier<RegistrationState> {
       : super(const RegistrationState());
 
   /// Register a new user with validation.
-  Future<void> registerUser(String fullName, String surname, String studyGroup) async {
+  Future<void> registerUser(String email, String password, String fullName, String surname, String studyGroup) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final user = await registerUserUseCase(fullName, surname, studyGroup);
+      final user = await registerUserUseCase(email, password, fullName, surname, studyGroup);
       state = state.copyWith(isLoading: false, user: user);
     } catch (e) {
       state = state.copyWith(
