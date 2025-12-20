@@ -73,11 +73,11 @@ class JournalNotifier extends StateNotifier<JournalState> {
   JournalNotifier(this.getDonationsUseCase) : super(const JournalState());
 
   /// Load all donations.
-  Future<void> loadDonations() async {
+  Future<void> loadDonations({bool forceRefresh = false}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final donations = await getDonationsUseCase();
+      final donations = await getDonationsUseCase(forceRefresh: forceRefresh);
       state = state.copyWith(
         isLoading: false,
         donations: donations,
@@ -90,8 +90,8 @@ class JournalNotifier extends StateNotifier<JournalState> {
     }
   }
 
-  /// Refresh donations.
-  Future<void> refresh() => loadDonations();
+  /// Refresh donations (force refresh from server).
+  Future<void> refresh() => loadDonations(forceRefresh: true);
 }
 
 /// Provider for journal repository.
