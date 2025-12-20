@@ -22,6 +22,7 @@ class DonationRepositoryImpl implements DonationRepository {
     required double amount,
     required String message,
     String? goalName,
+    String? transactionId,
   }) async {
     try {
       final now = DateTime.now();
@@ -32,6 +33,10 @@ class DonationRepositoryImpl implements DonationRepository {
         date: now,
         message: message,
         goalName: goalName,
+        transactionId: transactionId,
+        paymentStatus: transactionId != null && transactionId.isNotEmpty
+            ? PaymentStatus.pending
+            : null,
       );
 
       // Append to "Donations" sheet
