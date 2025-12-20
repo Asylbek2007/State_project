@@ -287,12 +287,14 @@ class _ManageGoalsPageState extends ConsumerState<ManageGoalsPage> {
     );
 
     if (confirmed == true && mounted) {
+      // ignore: use_build_context_synchronously
+      final messenger = ScaffoldMessenger.of(context);
       try {
         final deleteGoalUseCase = ref.read(deleteGoalUseCaseProvider);
         await deleteGoalUseCase(goal.name);
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('✓ Цель "${goal.name}" удалена'),
             backgroundColor: AppTheme.successGreen,
@@ -301,7 +303,7 @@ class _ManageGoalsPageState extends ConsumerState<ManageGoalsPage> {
         ref.read(goalsProvider.notifier).refresh();
       } on ValidationFailure catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(e.message),
             backgroundColor: AppTheme.errorRed,
@@ -309,7 +311,7 @@ class _ManageGoalsPageState extends ConsumerState<ManageGoalsPage> {
         );
       } on SheetsFailure catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(e.message),
             backgroundColor: AppTheme.errorRed,
@@ -317,7 +319,7 @@ class _ManageGoalsPageState extends ConsumerState<ManageGoalsPage> {
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('Ошибка удаления: ${e.toString()}'),
             backgroundColor: AppTheme.errorRed,
