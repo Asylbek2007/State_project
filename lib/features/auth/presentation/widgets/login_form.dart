@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Form widget for user login.
 class LoginForm extends StatefulWidget {
-  final void Function(String fullName, String surname, String studyGroup) onSubmit;
+  final void Function(String email, String password) onSubmit;
   final bool isLoading;
 
   const LoginForm({
@@ -17,24 +17,22 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
-  final _surnameController = TextEditingController();
-  final _studyGroupController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _fullNameController.dispose();
-    _surnameController.dispose();
-    _studyGroupController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
       widget.onSubmit(
-        _fullNameController.text,
-        _surnameController.text,
-        _studyGroupController.text,
+        _emailController.text.trim(),
+        _passwordController.text,
       );
     }
   }
@@ -47,57 +45,58 @@ class _LoginFormState extends State<LoginForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextFormField(
-            controller: _fullNameController,
+            controller: _emailController,
             enabled: !widget.isLoading,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
             decoration: InputDecoration(
-              labelText: 'Имя',
-              hintText: 'Введите ваше имя',
-              prefixIcon: const Icon(Icons.person),
+              labelText: 'Email',
+              hintText: 'Введите ваш email',
+              prefixIcon: const Icon(Icons.email),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Пожалуйста, введите ваше имя';
+                return 'Пожалуйста, введите email';
+              }
+              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+              if (!emailRegex.hasMatch(value.trim())) {
+                return 'Пожалуйста, введите корректный email';
               }
               return null;
             },
           ),
           const SizedBox(height: 20),
           TextFormField(
-            controller: _surnameController,
+            controller: _passwordController,
             enabled: !widget.isLoading,
+            obscureText: _obscurePassword,
             decoration: InputDecoration(
-              labelText: 'Фамилия',
-              hintText: 'Введите вашу фамилию',
-              prefixIcon: const Icon(Icons.badge),
+              labelText: 'Пароль',
+              hintText: 'Введите ваш пароль',
+              prefixIcon: const Icon(Icons.lock),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Пожалуйста, введите вашу фамилию';
+              if (value == null || value.isEmpty) {
+                return 'Пожалуйста, введите пароль';
               }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _studyGroupController,
-            enabled: !widget.isLoading,
-            decoration: InputDecoration(
-              labelText: 'Группа',
-              hintText: 'Введите вашу учебную группу',
-              prefixIcon: const Icon(Icons.school),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Пожалуйста, введите вашу группу';
+              if (value.length < 6) {
+                return 'Пароль должен содержать минимум 6 символов';
               }
               return null;
             },
