@@ -6,6 +6,6 @@ abstract class RegistrationRepository {
   /// Register a new user by saving their data.
   ///
   /// Returns [User] on success, throws [Failure] on error.
-  Future<User> registerUser(String fullName, String surname, String studyGroup);
+  Future<User> registerUser(String email, String password, String fullName, String surname, String studyGroup);
 }
 
