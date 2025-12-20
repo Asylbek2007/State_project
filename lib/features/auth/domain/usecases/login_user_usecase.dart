@@ -8,32 +8,35 @@ class LoginUserUseCase {
 
   const LoginUserUseCase(this.repository);
 
-  /// Execute login with user credentials.
+  /// Execute login with email and password.
   ///
   /// Returns [User] if login successful.
   /// Throws [Failure] if login fails.
   Future<User> call(
-    String fullName,
-    String surname,
-    String studyGroup,
+    String email,
+    String password,
   ) async {
     // Validation
-    if (fullName.trim().isEmpty) {
-      throw const ValidationFailure('Имя не может быть пустым');
+    if (email.trim().isEmpty) {
+      throw const ValidationFailure('Email не может быть пустым');
     }
 
-    if (surname.trim().isEmpty) {
-      throw const ValidationFailure('Фамилия не может быть пустой');
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email.trim())) {
+      throw const ValidationFailure('Некорректный формат email');
     }
 
-    if (studyGroup.trim().isEmpty) {
-      throw const ValidationFailure('Группа не может быть пустой');
+    if (password.isEmpty) {
+      throw const ValidationFailure('Пароль не может быть пустым');
+    }
+
+    if (password.length < 6) {
+      throw const ValidationFailure('Пароль должен содержать минимум 6 символов');
     }
 
     return await repository.loginUser(
-      fullName.trim(),
-      surname.trim(),
-      studyGroup.trim(),
+      email.trim().toLowerCase(),
+      password,
     );
   }
 }
