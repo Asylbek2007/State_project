@@ -15,6 +15,7 @@ class MakeDonationUseCase {
     required double amount,
     String message = '',
     String? goalName,
+    String? transactionId,
   }) async {
     // Validate inputs
     final trimmedName = fullName.trim();
@@ -45,6 +46,7 @@ class MakeDonationUseCase {
       amount: amount,
       message: trimmedMessage,
       goalName: trimmedGoalName?.isEmpty == true ? null : trimmedGoalName,
+      transactionId: transactionId?.trim().isEmpty == true ? null : transactionId?.trim(),
     );
   }
 }
