@@ -379,12 +379,14 @@ class _ManageUsersPageState extends ConsumerState<ManageUsersPage> {
     );
 
     if (confirmed == true && mounted) {
+      // ignore: use_build_context_synchronously
+      final messenger = ScaffoldMessenger.of(context);
       try {
         final deleteUserUseCase = ref.read(deleteUserUseCaseProvider);
         await deleteUserUseCase(user.fullName);
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('✓ Пользователь "${user.fullName} ${user.surname}" удален'),
             backgroundColor: AppTheme.successGreen,
@@ -393,7 +395,7 @@ class _ManageUsersPageState extends ConsumerState<ManageUsersPage> {
         ref.read(usersProvider.notifier).refresh();
       } on ValidationFailure catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(e.message),
             backgroundColor: AppTheme.errorRed,
@@ -401,7 +403,7 @@ class _ManageUsersPageState extends ConsumerState<ManageUsersPage> {
         );
       } on SheetsFailure catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(e.message),
             backgroundColor: AppTheme.errorRed,
@@ -409,7 +411,7 @@ class _ManageUsersPageState extends ConsumerState<ManageUsersPage> {
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('Ошибка удаления: ${e.toString()}'),
             backgroundColor: AppTheme.errorRed,
