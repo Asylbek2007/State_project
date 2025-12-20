@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../goals/domain/entities/goal.dart';
+import '../../../payment/presentation/widgets/payment_method_selector.dart';
+import '../../../payment/domain/entities/payment_method.dart';
 
 /// Form widget for making a donation.
 class DonationForm extends StatefulWidget {
@@ -9,6 +11,7 @@ class DonationForm extends StatefulWidget {
   final List<Goal> goals;
   final void Function(double amount, String message, String? goalName) onSubmit;
   final bool isLoading;
+  final String? preselectedGoalName;
 
   const DonationForm({
     super.key,
@@ -17,6 +20,7 @@ class DonationForm extends StatefulWidget {
     required this.goals,
     required this.onSubmit,
     required this.isLoading,
+    this.preselectedGoalName,
   });
 
   @override
@@ -32,6 +36,16 @@ class _DonationFormState extends State<DonationForm> {
   final List<int> _quickAmounts = [1000, 2000, 5000, 10000];
   int? _selectedQuickAmount;
   String? _selectedGoalName; // Выбранная цель сбора
+  PaymentMethod? _selectedPaymentMethod; // Выбранный метод оплаты
+
+  @override
+  void initState() {
+    super.initState();
+    // Устанавливаем предустановленную цель, если она передана
+    if (widget.preselectedGoalName != null) {
+      _selectedGoalName = widget.preselectedGoalName;
+    }
+  }
 
   @override
   void dispose() {
@@ -202,9 +216,18 @@ class _DonationFormState extends State<DonationForm> {
               FilteringTextInputFormatter.digitsOnly,
             ],
             decoration: InputDecoration(
-              labelText: 'Сумма пожертвования *',
+              labelText: 'КЗ *',
               hintText: 'Введите сумму',
-              prefixIcon: const Icon(Icons.attach_money),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Text(
+                  '₸',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               suffixText: '₸',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -229,6 +252,25 @@ class _DonationFormState extends State<DonationForm> {
               return null;
             },
           ),
+          const SizedBox(height: 24),
+
+          // Payment Method Selector (only show if amount is entered)
+          if (_amountController.text.isNotEmpty &&
+              double.tryParse(_amountController.text) != null &&
+              double.parse(_amountController.text) > 0)
+            PaymentMethodSelector(
+              amount: double.parse(_amountController.text),
+              selectedMethod: _selectedPaymentMethod,
+              goalName: _selectedGoalName,
+              userName: widget.userName,
+              userGroup: widget.userGroup,
+              onMethodSelected: (method) {
+                setState(() {
+                  _selectedPaymentMethod = method;
+                });
+              },
+            ),
+
           const SizedBox(height: 20),
 
           // Message input
