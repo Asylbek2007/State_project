@@ -1,34 +1,55 @@
+import 'dart:convert';
+import 'package:donation_app/core/config/api_config.dart';
 import 'package:donation_app/core/errors/failures.dart';
 import 'package:donation_app/core/services/google_sheets_service.dart';
+import 'package:http/http.dart' as http;
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/registration_repository.dart';
 import '../models/user_model.dart';
 
-/// Implementation of [RegistrationRepository] using Google Sheets.
+/// Implementation of [RegistrationRepository] using backend API.
 class RegistrationRepositoryImpl implements RegistrationRepository {
   final GoogleSheetsService sheetsService;
 
   const RegistrationRepositoryImpl(this.sheetsService);
+  
+  String get _baseUrl => ApiConfig.authBaseUrl;
 
   @override
-  Future<User> registerUser(String fullName, String surname, String studyGroup) async {
+  Future<User> registerUser(String email, String password, String fullName, String surname, String studyGroup) async {
     try {
-      final now = DateTime.now();
-      final userModel = UserModel(
-        fullName: fullName,
-        surname: surname,
-        studyGroup: studyGroup,
-        registrationDate: now,
+      // Send registration request to backend
+      final response = await http.post(
+        Uri.parse('$_baseUrl/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'fullName': fullName,
+          'surname': surname,
+          'studyGroup': studyGroup,
+        }),
       );
 
-      // Append to "Users" sheet
-      // Sheet structure: Full Name | Surname | Study Group | Registration Date
-      await sheetsService.appendRow(
-        'Users',
-        userModel.toSheetRow(),
-      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final userData = data['user'] as Map<String, dynamic>;
+        
+        final now = DateTime.parse(userData['registeredAt'] as String);
+        final userModel = UserModel(
+          email: email,
+          fullName: fullName,
+          surname: surname,
+          studyGroup: studyGroup,
+          registrationDate: now,
+        );
 
-      return userModel;
+        return userModel;
+      } else {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        final errorMessage = errorData['error'] as String? ?? 'Ошибка регистрации';
+        throw SheetsFailure(errorMessage);
+      }
     } on SheetsFailure {
       rethrow;
     } catch (e) {
