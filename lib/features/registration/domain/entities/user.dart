@@ -1,11 +1,13 @@
 /// Entity representing a registered user.
 class User {
+  final String email;
   final String fullName;
   final String surname;
   final String studyGroup;
   final DateTime registrationDate;
 
   const User({
+    required this.email,
     required this.fullName,
     required this.surname,
     required this.studyGroup,
@@ -17,6 +19,7 @@ class User {
       identical(this, other) ||
       other is User &&
           runtimeType == other.runtimeType &&
+          email == other.email &&
           fullName == other.fullName &&
           surname == other.surname &&
           studyGroup == other.studyGroup &&
@@ -24,10 +27,14 @@ class User {
 
   @override
   int get hashCode =>
-      fullName.hashCode ^ surname.hashCode ^ studyGroup.hashCode ^ registrationDate.hashCode;
+      email.hashCode ^
+      fullName.hashCode ^
+      surname.hashCode ^
+      studyGroup.hashCode ^
+      registrationDate.hashCode;
 
   @override
   String toString() =>
-      'User(fullName: $fullName, surname: $surname, studyGroup: $studyGroup, registrationDate: $registrationDate)';
+      'User(email: $email, fullName: $fullName, surname: $surname, studyGroup: $studyGroup, registrationDate: $registrationDate)';
 }
 
