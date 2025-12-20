@@ -31,5 +31,13 @@ abstract class AdminRepository {
   /// Delete a user by finding it first.
   /// Uses fullName to locate the user.
   Future<void> deleteUser(String fullName);
+
+  /// Update donation payment status.
+  /// Uses fullName and date to locate the donation.
+  Future<void> updateDonationPaymentStatus({
+    required String fullName,
+    required DateTime date,
+    required String status, // 'pending', 'confirmed', 'rejected'
+  });
 }
 
