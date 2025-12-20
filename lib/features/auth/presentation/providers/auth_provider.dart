@@ -43,16 +43,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this.loginUseCase) : super(const AuthState());
 
-  /// Login user with credentials.
+  /// Login user with email and password.
   Future<void> loginUser(
-    String fullName,
-    String surname,
-    String studyGroup,
+    String email,
+    String password,
   ) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final user = await loginUseCase(fullName, surname, studyGroup);
+      final user = await loginUseCase(email, password);
       state = state.copyWith(
         isLoading: false,
         user: user,
