@@ -60,6 +60,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomNavTheme = theme.bottomNavigationBarTheme;
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -69,7 +73,9 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: isDark 
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -79,15 +85,15 @@ class _HomePageState extends State<HomePage> {
           currentIndex: _currentIndex,
           onTap: _onTabTapped,
           type: BottomNavigationBarType.fixed,
-          backgroundColor: AppTheme.surfaceWhite,
-          selectedItemColor: AppTheme.primarySkyBlue,
-          unselectedItemColor: AppTheme.textSecondary,
-          selectedLabelStyle: const TextStyle(
+          backgroundColor: bottomNavTheme.backgroundColor ?? theme.colorScheme.surface,
+          selectedItemColor: bottomNavTheme.selectedItemColor ?? AppTheme.primarySkyBlue,
+          unselectedItemColor: bottomNavTheme.unselectedItemColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          selectedLabelStyle: bottomNavTheme.selectedLabelStyle ?? const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
           ),
-          unselectedLabelStyle: const TextStyle(
+          unselectedLabelStyle: bottomNavTheme.unselectedLabelStyle ?? const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
