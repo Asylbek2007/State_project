@@ -40,6 +40,25 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              await Future.wait([
+                ref.read(goalsProvider.notifier).refresh(),
+                ref.read(journalProvider.notifier).refresh(),
+              ]);
+              if (mounted) {
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('✓ Данные обновлены'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            tooltip: 'Обновить данные',
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _handleLogout(context),
             tooltip: 'Выход из админ-панели',
@@ -297,6 +316,7 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
       if (!mounted) return;
       
       // Вернуться назад (к странице профиля)
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pop();
     }
   }
