@@ -1,66 +1,63 @@
+import 'dart:convert';
+import 'package:donation_app/core/config/api_config.dart';
 import 'package:donation_app/core/errors/failures.dart';
 import 'package:donation_app/core/services/google_sheets_service.dart';
 import 'package:donation_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:donation_app/features/registration/domain/entities/user.dart';
 import 'package:donation_app/features/registration/data/models/user_model.dart';
+import 'package:http/http.dart' as http;
 
-/// Implementation of [AuthRepository] using Google Sheets.
+/// Implementation of [AuthRepository] using backend API.
 class AuthRepositoryImpl implements AuthRepository {
   final GoogleSheetsService sheetsService;
 
   const AuthRepositoryImpl(this.sheetsService);
+  
+  String get _baseUrl => ApiConfig.authBaseUrl;
 
   @override
   Future<User> loginUser(
-    String fullName,
-    String surname,
-    String studyGroup,
+    String email,
+    String password,
   ) async {
     try {
-      // Read Users sheet
-      final data = await sheetsService.readSheet('Users');
+      // Send login request to backend
+      final response = await http.post(
+        Uri.parse('$_baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
 
-      if (data.isEmpty || data.length < 2) {
-        // No users found (only header row or empty)
-        throw const AuthFailure('Пользователь не найден. Пожалуйста, зарегистрируйтесь.');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final userData = data['user'] as Map<String, dynamic>;
+        
+        final now = DateTime.parse(userData['registeredAt'] as String);
+        final userModel = UserModel(
+          email: email,
+          fullName: userData['userName'] as String,
+          surname: userData['surname'] as String,
+          studyGroup: userData['userGroup'] as String,
+          registrationDate: now,
+        );
+
+        return userModel;
+      } else if (response.statusCode == 401) {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        final errorMessage = errorData['error'] as String? ?? 'Неверный email или пароль';
+        throw AuthFailure(errorMessage);
+      } else {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        final errorMessage = errorData['error'] as String? ?? 'Ошибка входа';
+        throw AuthFailure(errorMessage);
       }
-
-      // Skip header row (index 0)
-      // Sheet structure: Full Name | Surname | Study Group | Registration Date
-      for (int i = 1; i < data.length; i++) {
-        final row = data[i];
-        if (row.length < 3) continue;
-
-        final sheetFullName = row[0].toString().trim();
-        final sheetSurname = row[1].toString().trim();
-        final sheetStudyGroup = row[2].toString().trim();
-
-        // Case-insensitive comparison
-        if (sheetFullName.toLowerCase() == fullName.toLowerCase() &&
-            sheetSurname.toLowerCase() == surname.toLowerCase() &&
-            sheetStudyGroup.toLowerCase() == studyGroup.toLowerCase()) {
-          // User found - create User entity
-          final registrationDate = row.length > 3
-              ? DateTime.tryParse(row[3].toString()) ?? DateTime.now()
-              : DateTime.now();
-
-          final user = UserModel(
-            fullName: sheetFullName,
-            surname: sheetSurname,
-            studyGroup: sheetStudyGroup,
-            registrationDate: registrationDate,
-          );
-
-          return user;
-        }
-      }
-
-      // User not found
-      throw const AuthFailure('Неверные данные. Проверьте имя, фамилию и группу.');
-    } on Failure {
+    } on AuthFailure {
       rethrow;
     } catch (e) {
-      throw SheetsFailure('Ошибка входа: ${e.toString()}');
+      throw AuthFailure('Ошибка входа: ${e.toString()}');
     }
   }
 }
