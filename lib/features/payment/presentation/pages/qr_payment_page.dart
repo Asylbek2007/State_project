@@ -9,11 +9,15 @@ import 'payment_confirmation_page.dart';
 class QRPaymentPage extends StatelessWidget {
   final double amount;
   final String? goalName;
+  final String userName;
+  final String userGroup;
 
   const QRPaymentPage({
     super.key,
     required this.amount,
     this.goalName,
+    required this.userName,
+    required this.userGroup,
   });
 
   @override
@@ -21,8 +25,9 @@ class QRPaymentPage extends StatelessWidget {
     final theme = Theme.of(context);
     // Используем простой формат с номером телефона для Kaspi
     // Камера Kaspi распознает номер и предложит перевод
-    final qrData = PaymentConfig.hasBankDetails 
-        ? PaymentConfig.generateBankQRData(amount) ?? PaymentConfig.generateKaspiQR(amount)
+    final qrData = PaymentConfig.hasBankDetails
+        ? PaymentConfig.generateBankQRData(amount) ??
+            PaymentConfig.generateKaspiQR(amount)
         : PaymentConfig.generateKaspiQR(amount);
 
     return Scaffold(
@@ -55,7 +60,7 @@ class QRPaymentPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.info_outline,
                         color: AppTheme.primarySkyBlue,
                         size: 20,
@@ -81,7 +86,8 @@ class QRPaymentPage extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle, color: Colors.green.shade700, size: 20),
+                        Icon(Icons.check_circle,
+                            color: Colors.green.shade700, size: 20),
                         const SizedBox(width: AppTheme.spacing8),
                         Expanded(
                           child: Text(
@@ -98,12 +104,16 @@ class QRPaymentPage extends StatelessWidget {
                   ),
                   const SizedBox(height: AppTheme.spacing16),
                   _buildStep('1', 'Откройте приложение Kaspi.kz'),
-                  _buildStep('2', 'Нажмите на кнопку "Сканировать QR" в разделе "Переводы"'),
+                  _buildStep('2',
+                      'Нажмите на кнопку "Сканировать QR" в разделе "Переводы"'),
                   _buildStep('3', 'Наведите камеру на QR-код выше'),
-                  _buildStep('4', 'Камера распознает номер телефона: ${PaymentConfig.kaspiNumber}'),
-                  _buildStep('5', 'Введите сумму: ${amount.toStringAsFixed(0)} ₸'),
+                  _buildStep('4',
+                      'Камера распознает номер телефона: ${PaymentConfig.kaspiNumber}'),
+                  _buildStep(
+                      '5', 'Введите сумму: ${amount.toStringAsFixed(0)} ₸'),
                   _buildStep('6', 'Проверьте данные и подтвердите перевод'),
-                  _buildStep('7', 'После перевода вернитесь и подтвердите оплату'),
+                  _buildStep(
+                      '7', 'После перевода вернитесь и подтвердите оплату'),
                 ],
               ),
             ),
@@ -126,12 +136,15 @@ class QRPaymentPage extends StatelessWidget {
                     builder: (_) => PaymentConfirmationPage(
                       amount: amount,
                       goalName: goalName,
+                      userName: userName,
+                      userGroup: userGroup,
                     ),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: AppTheme.spacing16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 ),
@@ -156,7 +169,7 @@ class QRPaymentPage extends StatelessWidget {
           Container(
             width: 24,
             height: 24,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.primarySkyBlue,
               shape: BoxShape.circle,
             ),
@@ -185,7 +198,7 @@ class QRPaymentPage extends StatelessWidget {
 
   Widget _buildBankDetails(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacing16),
       decoration: BoxDecoration(
@@ -201,7 +214,8 @@ class QRPaymentPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.account_balance, size: 20, color: AppTheme.primarySkyBlue),
+              const Icon(Icons.account_balance,
+                  size: 20, color: AppTheme.primarySkyBlue),
               const SizedBox(width: AppTheme.spacing8),
               Text(
                 'Реквизиты получателя:',
@@ -216,7 +230,8 @@ class QRPaymentPage extends StatelessWidget {
           const SizedBox(height: AppTheme.spacing12),
           _buildDetailRow('Получатель:', PaymentConfig.recipientName, context),
           if (PaymentConfig.accountNumber != null)
-            _buildDetailRow('Счет (IBAN):', PaymentConfig.accountNumber!, context),
+            _buildDetailRow(
+                'Счет (IBAN):', PaymentConfig.accountNumber!, context),
           if (PaymentConfig.bankName != null)
             _buildDetailRow('Банк:', PaymentConfig.bankName!, context),
           _buildDetailRow('Kaspi номер:', PaymentConfig.kaspiNumber, context),
@@ -225,7 +240,8 @@ class QRPaymentPage extends StatelessWidget {
             const SizedBox(height: AppTheme.spacing8),
             ElevatedButton.icon(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: PaymentConfig.accountNumber!));
+                Clipboard.setData(
+                    ClipboardData(text: PaymentConfig.accountNumber!));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('IBAN скопирован в буфер обмена'),
@@ -248,7 +264,7 @@ class QRPaymentPage extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value, BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.spacing8),
       child: Row(
@@ -281,7 +297,7 @@ class QRPaymentPage extends StatelessWidget {
 
   Widget _buildPhoneDetails(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacing16),
       decoration: BoxDecoration(
@@ -297,7 +313,8 @@ class QRPaymentPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.phone_android, size: 20, color: AppTheme.primarySkyBlue),
+              const Icon(Icons.phone_android,
+                  size: 20, color: AppTheme.primarySkyBlue),
               const SizedBox(width: AppTheme.spacing8),
               Text(
                 'Номера для перевода:',
@@ -341,9 +358,10 @@ class QRPaymentPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPhoneRow(String bankName, String phoneNumber, BuildContext context) {
+  Widget _buildPhoneRow(
+      String bankName, String phoneNumber, BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacing12),
       decoration: BoxDecoration(
@@ -394,4 +412,3 @@ class QRPaymentPage extends StatelessWidget {
     );
   }
 }
-
