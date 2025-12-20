@@ -1,6 +1,12 @@
 # Donation App
 
-Мобильное приложение для сбора пожертвований для студентов и преподавателей колледжа с интеграцией Google Sheets.
+Мобильное приложение для сбора пожертвований для студентов и преподавателей колледжа с интеграцией Google Sheets.<img width="250" height="724" alt="Снимок экрана 2025-12-19 в 11 02 36" src="https://github.com/user-attachments/assets/348a685d-e842-4be1-ab03-f2b90987f2e8" />
+<img width="300" height="724" alt="Снимок экрана 2025-12-19 в 11 02 46" src="https://github.com/user-attachments/assets/d91f56fa-26c8-48f1-a7e4-01f15e6a6079" />
+<img width="300" height="724" alt="Снимок экрана 2025-12-19 в 11 01 16" src="https://github.com/user-attachments/assets/74825ee3-c743-4277-9119-d2978f59b218" />
+<img width="300" height="724" alt="Снимок экрана 2025-12-19 в 10 58 05" src="https://github.com/user-attachments/assets/17228320-5620-4d32-bd5e-df543a05be14" />
+<img width="300" height="724" alt="Снимок экрана 2025-12-19 в 10 57 57" src="https://github.com/user-attachments/assets/a5cd9f5f-4c0e-4570-879e-c063fc331b4d" />
+<img width="300" height="724" alt="Снимок экрана 2025-12-19 в 10 57 48" src="https://github.com/user-attachments/assets/59627161-83f4-4eb9-bb94-8b821e7c37f7" />
+
 
 ## Особенности
 
@@ -189,6 +195,8 @@ flutter run
 - Убедитесь, что Spreadsheet ID правильный
 - Проверьте, что таблица расшарена с Service Account email
 - Проверьте, что имена листов совпадают (регистр важен!)
+
+- 
 
 ### "Validation errors"
 - Полное имя должно быть минимум 3 символа
